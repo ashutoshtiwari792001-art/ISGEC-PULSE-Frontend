@@ -1,24 +1,46 @@
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
-import HomeIcon from '@mui/icons-material/Home'
-import InventoryIcon from '@mui/icons-material/Inventory2'
-import ReceiptIcon from '@mui/icons-material/Receipt'
-import InsightsIcon from '@mui/icons-material/Analytics'
-import AccountIcon from '@mui/icons-material/AccountCircle'
 
-export default function Sidebar(){
-  const nav = useNavigate()
+// src/components/Sidebar.jsx
+import React from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import WorkIcon from "@mui/icons-material/Work";
+import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
+import QueryStatsIcon from "@mui/icons-material/QueryStats";
+import PersonIcon from "@mui/icons-material/Person";
+
+const menuItems = [
+  { label: "Dashboard", icon: <DashboardIcon fontSize="small" />, path: "/app" },
+  { label: "Projects", icon: <WorkIcon fontSize="small" />, path: "/app/projects" },
+  { label: "Billing", icon: <ReceiptLongIcon fontSize="small" />, path: "/app/billing" },
+  { label: "Analytics", icon: <QueryStatsIcon fontSize="small" />, path: "/app/analytics" },
+  { label: "Profile", icon: <PersonIcon fontSize="small" />, path: "/app/profile" },
+];
+
+export default function Sidebar() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   return (
-    <div className="sidebar">
-      <div style={{marginBottom:18}}>
-        <img src="/src/assets/logo.png" alt="ISGEC" style={{width:160}}/>
+    <aside className="sidebar">
+      <div className="sidebar-header">
+        <img src="/src/assets/logo.png" alt="ISGEC" className="sidebar-logo" />
+        <div className="sidebar-title">ISGEC PULSE</div>
       </div>
-      <div className="menu-item" onClick={()=>nav('/app')}><HomeIcon/> Home</div>
-      <div className="menu-item" onClick={()=>nav('/projects')}><InventoryIcon/> Projects</div>
-      <div className="menu-item" onClick={()=>nav('/billing')}><ReceiptIcon/> Billing</div>
-      <div className="menu-item" onClick={()=>nav('/analytics')}><InsightsIcon/> Analytics</div>
-      <div className="menu-item" onClick={()=>nav('/profile')}><AccountIcon/> Profile</div>
-    </div>
-  )
+      <nav className="sidebar-menu">
+        {menuItems.map((item) => {
+          const active = location.pathname === item.path;
+          return (
+            <div
+              key={item.path}
+              className={`menu-item ${active ? "menu-item-active" : ""}`}
+              onClick={() => navigate(item.path)}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </div>
+          );
+        })}
+      </nav>
+    </aside>
+  );
 }
-
