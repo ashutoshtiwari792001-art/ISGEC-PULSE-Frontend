@@ -1,33 +1,81 @@
-import React, { useEffect, useState } from 'react'
-import Sidebar from '../components/Sidebar'
-import api from '../services/api'
-import { Typography, Grid } from '@mui/material'
-import Chart from '../components/Chart'
 
-export default function Dashboard(){
-  const [summary,setSummary]=useState({})
-  useEffect(()=>{
-    api.get('/analytics/summary').then(r=>setSummary(r.data)).catch(()=>{})
-  },[])
+// src/pages/Dashboard.jsx
+import React, { useEffect, useState } from "react";
+import { Grid, Typography } from "@mui/material";
+import api from "../services/api";
+import StatCard from "../components/StatCard";
+import Chart from "../components/Chart";
+
+export default function Dashboard() {
+  const [summary, setSummary] = useState({
+    totalBilling: 0,
+    activeProjects: 0,
+    atRisk: 0,
+  });
+
+  useEffect(() => {
+    api
+      .get("/analytics/summary")
+      .then((res) => {
+        setSummary({
+          totalBilling: res.data.totalBilling || 0,
+          activeProjects: res.data.projects || 0,
+          atRisk: res.data.atRisk || 0,
+        });
+      })
+      .catch(() => {});
+  }, []);
 
   return (
-    <div className="app-shell">
-      <Sidebar />
-      <div className="main">
-        <div className="header">
-          <Typography variant="h6">ISGEC PULSE</Typography>
-          <div>Welcome</div>
-        </div>
-        <Grid container spacing={2} style={{marginTop:12}}>
-          <Grid item xs={12} md={4}><div className="card"> <Typography variant="h6">Total Billing</Typography> <Typography variant="h4">{summary.totalBilling||0}</Typography></div></Grid>
-          <Grid item xs={12} md={4}><div className="card"> <Typography variant="h6">Active Projects</Typography> <Typography variant="h4">{summary.projects||0}</Typography></div></Grid>
-          <Grid item xs={12} md={4}><div className="card"> <Typography variant="h6">At Risk</Typography> <Typography variant="h4" color="error">{summary.atRisk||0}</Typography></div></Grid>
-
-          <Grid item xs={12} md={8}><div className="card" style={{height:350}}><Chart/></div></Grid>
-          <Grid item xs={12} md={4}><div className="card">Quick Actions (Add Project / Add Billing)</div></Grid>
+    <>
+      <Typography variant="h6" mb={2}>
+        Overview
+      </Typography>
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={4}>
+          <StatCard
+            label="Total Billing"
+            value={`₹ ${summary.totalBilling}`}
+            caption="All projects (till date)"
+          />
         </Grid>
-      </div>
-    </div>
-  )
-}
+        <Grid item xs={12} md={4}>
+          <StatCard
+            label="Active Projects"
+            value={summary.activeProjects}
+            caption="Running this month"
+          />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <StatCard
+            label="At Risk"
+            value={summary.atRisk}
+            caption="Need PM attention"
+          />
+        </Grid>
 
+        <Grid item xs={12} md={8}>
+          <div className="card" style={{ height: 320 }}>
+            <Typography variant="subtitle1" mb={2}>
+              Monthly Billing Trend
+            </Typography>
+            <Chart />
+          </div>
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <div className="card">
+            <Typography variant="subtitle1" mb={1}>
+              Quick Notes
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              • Monitor projects with low billing this month. <br />
+              • Follow up with PMs on delayed billing. <br />
+              • Use Analytics tab for deeper trends.
+            </Typography>
+          </div>
+        </Grid>
+      </Grid>
+    </>
+  );
+}
