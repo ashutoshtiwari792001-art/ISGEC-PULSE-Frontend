@@ -1,67 +1,47 @@
-import React from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import Login from './pages/Login'
-import Dashboard from './pages/Dashboard'
-import Projects from './pages/Projects'
-import Billing from './pages/Billing'
-import Analytics from './pages/Analytics'
-import Profile from './pages/Profile'
-import { AuthProvider, useAuth } from './context/AuthContext'
+// src/App.jsx
+import React from "react";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 
-function PrivateRoute({ children }) {
-  const { user } = useAuth()
-  if (!user) return <Navigate to="/" replace />
-  return children
-}
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import Projects from "./pages/Projects";
+import Billing from "./pages/Billing";
+import Analytics from "./pages/Analytics";
+import Profile from "./pages/Profile";
+
+import Sidebar from "./components/Sidebar";
+import Topbar from "./components/Topbar";
+
+const PrivateLayout = () => {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/" replace />;
+
+  return (
+    <div className="app-shell">
+      <Sidebar />
+      <div className="main">
+        <Topbar />
+        <div className="main-content">
+          <Outlet />
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route
-            path="/app"
-            element={
-              <PrivateRoute>
-                <Dashboard />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/projects"
-            element={
-              <PrivateRoute>
-                <Projects />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/billing"
-            element={
-              <PrivateRoute>
-                <Billing />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/analytics"
-            element={
-              <PrivateRoute>
-                <Analytics />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <PrivateRoute>
-                <Profile />
-              </PrivateRoute>
-            }
-          />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
-  )
+    <Routes>
+      <Route path="/" element={<Login />} />
+      <Route element={<PrivateLayout />}>
+        <Route path="/app" element={<Dashboard />} />
+        <Route path="/app/projects" element={<Projects />} />
+        <Route path="/app/billing" element={<Billing />} />
+        <Route path="/app/analytics" element={<Analytics />} />
+        <Route path="/app/profile" element={<Profile />} />
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
 }
