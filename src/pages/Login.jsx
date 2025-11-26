@@ -1,91 +1,52 @@
-
-// src/pages/Login.jsx
-import React, { useState } from "react";
-import {
-  Box,
-  Button,
-  Paper,
-  TextField,
-  Typography,
-  Alert,
-} from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useContext } from "react";
 import api from "../services/api";
-import { useAuth } from "../context/AuthContext";
+import { AuthContext } from "../context/AuthContext";
 
 export default function Login() {
-  const { login } = useAuth();
-  const navigate = useNavigate();
-  const [email, setEmail] = useState("isgecpulse@outlook.com");
-  const [password, setPassword] = useState("Ashuwari_007");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const { login } = useContext(AuthContext);
 
-  const handleSubmit = async (e) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [err, setErr] = useState("");
+
+  const submit = async (e) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
+    setErr("");
+
     try {
-      const res = await api.post("/auth/login", { email, password });
+      const res = await api.post("/api/auth/login", { email, password });
       login(res.data.token);
-      navigate("/app");
-    } catch (err) {
-      const msg =
-        err?.response?.data?.error ||
-        err?.message ||
-        "Login failed. Please try again.";
-      setError(msg);
-    } finally {
-      setLoading(false);
+      window.location.href = "/dashboard";
+    } catch (e) {
+      setErr(e.response?.data?.error || "Login failed");
     }
   };
 
   return (
-    <Box className="login-page">
-      <Paper elevation={3} className="login-card">
-        <Typography variant="h5" mb={1}>
-          ISGEC PULSE — Login
-        </Typography>
-        <Typography variant="body2" color="text.secondary" mb={3}>
-          Use your ISGEC Outlook email to sign in.
-        </Typography>
+    <div className="login-wrapper">
+      <form className="login-box" onSubmit={submit}>
+        <h2>ISGEC PULSE Login</h2>
 
-        <form onSubmit={handleSubmit}>
-          <TextField
-            label="Outlook Email"
-            type="email"
-            fullWidth
-            margin="normal"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+        <input
+          type="email"
+          placeholder="Email (official Outlook)"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
 
-          <TextField
-            label="Password"
-            type="password"
-            fullWidth
-            margin="normal"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
 
-          {error && (
-            <Alert severity="error" sx={{ mt: 2 }}>
-              {error}
-            </Alert>
-          )}
+        {err && <p className="error">{err}</p>}
 
-          <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            sx={{ mt: 3 }}
-            disabled={loading}
-          >
-            {loading ? "Signing in..." : "Sign In"}
-          </Button>
-        </form>
-      </Paper>
-    </Box>
+        <button type="submit">Sign In</button>
+      </form>
+    </div>
   );
 }
