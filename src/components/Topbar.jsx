@@ -1,27 +1,13 @@
-// src/components/Topbar.jsx
-import React from "react";
-import { useAuth } from "../context/AuthContext";
-import { Button } from "@mui/material";
+import React, { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 export default function Topbar() {
-  const { user, logout } = useAuth();
-
-  const handleLogout = () => {
-    logout();
-    window.location.href = "/";
-  };
+  const { user } = useContext(AuthContext);
 
   return (
-    <header className="header">
-      <div className="header-title">ISGEC PULSE — Control Panel</div>
-      <div className="header-right">
-        <span className="header-user">
-          {user?.email || "User"}
-        </span>
-        <Button variant="outlined" size="small" onClick={handleLogout}>
-          Logout
-        </Button>
-      </div>
-    </header>
+    <div className="topbar">
+      <h2>Welcome, {user?.name}</h2>
+      <div className="topbar-role">{user?.role}</div>
+    </div>
   );
 }
