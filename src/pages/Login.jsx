@@ -1,35 +1,36 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import api from "../services/api";
-import { AuthContext } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
-  const { login } = useContext(AuthContext);
-
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [err, setErr] = useState("");
+  const [error, setError] = useState("");
 
-  const submit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setErr("");
+    setError("");
 
     try {
-      const res = await api.post("/api/auth/login", { email, password });
-      login(res.data.token);
-      window.location.href = "/dashboard";
-    } catch (e) {
-      setErr(e.response?.data?.error || "Login failed");
+      const res = await api.post("/auth/login", { email, password });
+      login(res.data.user, res.data.token);
+      window.location.href = "/dashboard"; // redirect
+    } catch (err) {
+      setError(err.response?.data?.error || "Login failed");
     }
   };
 
   return (
-    <div className="login-wrapper">
-      <form className="login-box" onSubmit={submit}>
-        <h2>ISGEC PULSE Login</h2>
+    <div className="login-container">
+      <h2>Login</h2>
 
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      <form onSubmit={handleLogin}>
         <input
           type="email"
-          placeholder="Email (official Outlook)"
+          placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -43,9 +44,7 @@ export default function Login() {
           required
         />
 
-        {err && <p className="error">{err}</p>}
-
-        <button type="submit">Sign In</button>
+        <button type="submit">Login</button>
       </form>
     </div>
   );
