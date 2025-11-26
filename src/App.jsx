@@ -1,105 +1,45 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 
 import Login from "./pages/Login";
-import DashboardAdmin from "./pages/DashboardAdmin";
-import DashboardManager from "./pages/DashboardManager";
-import DashboardLead from "./pages/DashboardLead";
-
+import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import Billing from "./pages/Billing";
 import Analytics from "./pages/Analytics";
-import Team from "./pages/Team";
-import Tasks from "./pages/Tasks";
 import Profile from "./pages/Profile";
 
-import { AuthContext } from "./context/AuthContext";
-
 export default function App() {
-  const { user } = useContext(AuthContext);
-
-  const Protected = ({ children }) => {
-    if (!user) return <Navigate to="/" />;
-    return children;
-  };
-
-  const getDashboard = () => {
-    if (user?.role === "Admin") return <DashboardAdmin />;
-    if (user?.role === "Manager") return <DashboardManager />;
-    if (user?.role === "Lead") return <DashboardLead />;
-    return <Navigate to="/" />;
-  };
+  const { user } = useAuth();
 
   return (
     <Routes>
-      {/* PUBLIC ROUTE */}
-      <Route path="/" element={<Login />} />
+      {/* Public Route */}
+      <Route path="/login" element={<Login />} />
 
-      {/* PROTECTED ROUTES */}
+      {/* Protected Routes */}
       <Route
-        path="/dashboard"
-        element={
-          <Protected>
-            {getDashboard()}
-          </Protected>
-        }
+        path="/"
+        element={user ? <Dashboard /> : <Navigate to="/login" />}
       />
-
       <Route
         path="/projects"
-        element={
-          <Protected>
-            <Projects />
-          </Protected>
-        }
+        element={user ? <Projects /> : <Navigate to="/login" />}
       />
-
       <Route
         path="/billing"
-        element={
-          <Protected>
-            {user?.role !== "Lead" ? <Billing /> : <Navigate to="/dashboard" />}
-          </Protected>
-        }
+        element={user ? <Billing /> : <Navigate to="/login" />}
       />
-
       <Route
         path="/analytics"
-        element={
-          <Protected>
-            <Analytics />
-          </Protected>
-        }
+        element={user ? <Analytics /> : <Navigate to="/login" />}
       />
-
-      <Route
-        path="/team"
-        element={
-          <Protected>
-            {user?.role === "Admin" ? <Team /> : <Navigate to="/dashboard" />}
-          </Protected>
-        }
-      />
-
-      <Route
-        path="/tasks"
-        element={
-          <Protected>
-            {user?.role === "Lead" ? <Tasks /> : <Navigate to="/dashboard" />}
-          </Protected>
-        }
-      />
-
       <Route
         path="/profile"
-        element={
-          <Protected>
-            <Profile />
-          </Protected>
-        }
+        element={user ? <Profile /> : <Navigate to="/login" />}
       />
 
-      {/* FALLBACK */}
+      {/* Fallback */}
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
