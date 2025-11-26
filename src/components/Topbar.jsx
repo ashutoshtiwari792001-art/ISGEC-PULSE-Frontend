@@ -1,9 +1,8 @@
 import React, { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 
 export default function Topbar() {
-  const { user } = useContext(AuthContext);
-
+  const { user, logout } = useAuth();
   return (
     <div className="topbar">
       <h2>Welcome, {user?.name}</h2>
