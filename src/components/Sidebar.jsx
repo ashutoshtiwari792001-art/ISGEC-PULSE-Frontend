@@ -1,46 +1,66 @@
-
-// src/components/Sidebar.jsx
-import React from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import WorkIcon from "@mui/icons-material/Work";
-import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
-import QueryStatsIcon from "@mui/icons-material/QueryStats";
-import PersonIcon from "@mui/icons-material/Person";
-
-const menuItems = [
-  { label: "Dashboard", icon: <DashboardIcon fontSize="small" />, path: "/app" },
-  { label: "Projects", icon: <WorkIcon fontSize="small" />, path: "/app/projects" },
-  { label: "Billing", icon: <ReceiptLongIcon fontSize="small" />, path: "/app/billing" },
-  { label: "Analytics", icon: <QueryStatsIcon fontSize="small" />, path: "/app/analytics" },
-  { label: "Profile", icon: <PersonIcon fontSize="small" />, path: "/app/profile" },
-];
+import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import {
+  Dashboard,
+  People,
+  Assessment,
+  AccountTree,
+  MonetizationOn,
+  Logout,
+  Person,
+  Workspaces
+} from "@mui/icons-material";
 
 export default function Sidebar() {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const nav = useNavigate();
+  const { user, logout } = useContext(AuthContext);
+
+  const role = user?.role;
 
   return (
-    <aside className="sidebar">
-      <div className="sidebar-header">
-        <img src="/src/assets/logo.png" alt="ISGEC" className="sidebar-logo" />
-        <div className="sidebar-title">ISGEC PULSE</div>
+    <div className="sidebar">
+      <div className="sidebar-title">ISGEC PULSE</div>
+
+      <div className="menu">
+        <div className="menu-item" onClick={() => nav("/dashboard")}>
+          <Dashboard /> Dashboard
+        </div>
+
+        <div className="menu-item" onClick={() => nav("/projects")}>
+          <Workspaces /> Projects
+        </div>
+
+        {(role === "Admin" || role === "Manager") && (
+          <div className="menu-item" onClick={() => nav("/billing")}>
+            <MonetizationOn /> Billing
+          </div>
+        )}
+
+        <div className="menu-item" onClick={() => nav("/analytics")}>
+          <Assessment /> Analytics
+        </div>
+
+        {role === "Admin" && (
+          <div className="menu-item" onClick={() => nav("/team")}>
+            <People /> Team Management
+          </div>
+        )}
+
+        {role === "Lead" && (
+          <div className="menu-item" onClick={() => nav("/tasks")}>
+            <AccountTree /> Tasks
+          </div>
+        )}
+
+        <div className="menu-item" onClick={() => nav("/profile")}>
+          <Person /> Profile
+        </div>
+
+        <div className="menu-item logout" onClick={logout}>
+          <Logout /> Logout
+        </div>
       </div>
-      <nav className="sidebar-menu">
-        {menuItems.map((item) => {
-          const active = location.pathname === item.path;
-          return (
-            <div
-              key={item.path}
-              className={`menu-item ${active ? "menu-item-active" : ""}`}
-              onClick={() => navigate(item.path)}
-            >
-              {item.icon}
-              <span>{item.label}</span>
-            </div>
-          );
-        })}
-      </nav>
-    </aside>
+    </div>
   );
 }
