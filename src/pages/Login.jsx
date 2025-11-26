@@ -1,51 +1,11 @@
-import React, { useState } from "react";
-import api from "../services/api";
-import { useAuth } from "../context/AuthContext";
+const handleLogin = async (e) => {
+  e.preventDefault();
 
-export default function Login() {
-  const { login } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError("");
-
-    try {
-      const res = await api.post("/auth/login", { email, password });
-      login(res.data.user, res.data.token);
-      window.location.href = "/dashboard"; // redirect
-    } catch (err) {
-      setError(err.response?.data?.error || "Login failed");
-    }
-  };
-
-  return (
-    <div className="login-container">
-      <h2>Login</h2>
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-
-        <button type="submit">Login</button>
-      </form>
-    </div>
-  );
-}
+  try {
+    const res = await api.post("/auth/login", { email, password });
+    login(res.data.user, res.data.token);
+    navigate("/");
+  } catch (err) {
+    alert(err.response?.data?.error || "Login failed");
+  }
+};
