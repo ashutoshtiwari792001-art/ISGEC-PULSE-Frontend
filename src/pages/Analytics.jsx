@@ -1,48 +1,65 @@
-// src/pages/Analytics.jsx
 import React, { useEffect, useState } from "react";
-import { Grid, Typography, Paper } from "@mui/material";
+import Sidebar from "../components/Sidebar";
+import Topbar from "../components/Topbar";
 import api from "../services/api";
-import Chart from "../components/Chart";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer
+} from "recharts";
 
 export default function Analytics() {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    api
-      .get("/analytics/trends")
-      .then((res) => setData(res.data || {}))
-      .catch(() => {});
+    api.get("/api/analytics/full").then((res) => setData(res.data));
   }, []);
 
   return (
-    <>
-      <Typography variant="h6" mb={2}>
-        Analytics
-      </Typography>
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={8}>
-          <Paper className="card" sx={{ height: 320 }}>
-            <Typography variant="subtitle1" mb={2}>
-              Billing Trend
-            </Typography>
-            <Chart />
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <Paper className="card">
-            <Typography variant="subtitle1" mb={1}>
-              Snapshot
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Total Billing: {data.totalBilling || 0}
-              <br />
-              Projects with zero billing: {data.zeroBilling || 0}
-              <br />
-              Delayed projects: {data.delayed || 0}
-            </Typography>
-          </Paper>
-        </Grid>
-      </Grid>
-    </>
+    <div className="layout">
+      <Sidebar />
+      <div className="page">
+        <Topbar />
+        <h2>Analytics Overview</h2>
+
+        <div className="chart-card">
+          <h3>Monthly Billing Trend</h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={data?.billingTrend || []}>
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
+              <Line dataKey="amount" stroke="#003366" strokeWidth={3} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="chart-card">
+          <h3>Project Status Distribution</h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <PieChart>
+              <Pie
+                data={data?.projectStatus || []}
+                dataKey="value"
+                outerRadius={80}
+                label
+              >
+                {(data?.projectStatus || []).map((e, i) => (
+                  <Cell key={i} fill={e.color} />
+                ))}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
   );
 }
